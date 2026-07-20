@@ -6,14 +6,18 @@
 
 A production-grade, async **backend API** for managing the university academic lifecycle: authentication, students, faculty, academics, attendance, examinations, results, fees, and administration.
 
-<!-- TODO: Replace <TODO-GITHUB-USERNAME> and <TODO-REPO-NAME> below once the repository is published, then these badges will resolve automatically. -->
+<!-- TODO: Replace <yogesh-kumar-sharma> and <campus-os-erp> below once the repository is published, then these badges will resolve automatically. -->
 
-[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Pydantic](https://img.shields.io/badge/Pydantic-v2-E92063?style=for-the-badge&logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
+[![Alembic](https://img.shields.io/badge/Alembic-Migrations-4B8BBE?style=for-the-badge)](https://alembic.sqlalchemy.org/)
+[![Pytest](https://img.shields.io/badge/Pytest-Tested-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org/)
+[![License](https://img.shields.io/badge/License-MIT-FCC624?style=for-the-badge)](LICENSE)
 
 <!-- TODO: Add CI badge once .github/workflows/ci.yml exists, e.g.:
 [![CI](https://img.shields.io/github/actions/workflow/status/<TODO-GITHUB-USERNAME>/<TODO-REPO-NAME>/ci.yml?style=flat-square)](https://github.com/<TODO-GITHUB-USERNAME>/<TODO-REPO-NAME>/actions)
@@ -624,10 +628,10 @@ If this project is useful to you:
 **Yogesh Kumar Sharma**
 Python Backend Developer · MCA (Artificial Intelligence)
 
-- GitHub: `TODO: add GitHub profile URL`
-- LinkedIn: `TODO: add LinkedIn profile URL`
-- Portfolio: `TODO: add portfolio URL`
-- Email: `TODO: add contact email`
+- GitHub: `GitHub: https://github.com/yogesh-kumar-sharma`
+- LinkedIn: `https://linkedin.com/in/yogesh-kumar0`
+- Portfolio: `
+- Email: `ykumar0052@gmail.com`
 
 ---
 
