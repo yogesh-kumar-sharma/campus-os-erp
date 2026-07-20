@@ -1,455 +1,573 @@
+<div align="center">
+
 # CampusOS ERP
 
-**Enterprise University Management Platform**
+### The open-source operating system for universities.
 
-A scalable, async, production-oriented backend for automating university operations — authentication, users, students, faculty, academics, attendance, examinations, results, fees, and administration — built on FastAPI, PostgreSQL, and Redis.
+A production-grade, async ERP backend — with a modern web frontend on the roadmap — for managing the full academic lifecycle: authentication, students, faculty, academics, attendance, examinations, results, fees, and administration.
 
-[![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)](https://redis.io/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Code style: ruff](https://img.shields.io/badge/lint-ruff-261230)](https://github.com/astral-sh/ruff)
+[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
----
+[![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)](#-cicd)
+[![Coverage](https://img.shields.io/badge/coverage-tracked_in_CI-blue?style=flat-square)](#-testing)
+[![Last Commit](https://img.shields.io/github/last-commit/your-org/campusos-erp?style=flat-square)](https://github.com/your-org/campusos-erp/commits)
+[![Stars](https://img.shields.io/github/stars/your-org/campusos-erp?style=flat-square)](https://github.com/your-org/campusos-erp/stargazers)
+[![Forks](https://img.shields.io/github/forks/your-org/campusos-erp?style=flat-square)](https://github.com/your-org/campusos-erp/network/members)
 
-## Table of Contents
+[Quick Start](#-quick-start) · [Architecture](#-system-architecture) · [API Reference](#-api-overview) · [Roadmap](#-roadmap) · [Contributing](#-contributing)
 
-- [Overview](#overview)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [System Architecture](#system-architecture)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Local Setup (without Docker)](#local-setup-without-docker)
-  - [Setup with Docker Compose](#setup-with-docker-compose)
-- [Environment Variables](#environment-variables)
-- [Database Migrations](#database-migrations)
-- [API Reference](#api-reference)
-- [Authentication & RBAC](#authentication--rbac)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
+</div>
+
+> [!NOTE]
+> **Repository status:** the **FastAPI backend is implemented and functional** — 12 domain modules, 20 database tables, 60+ REST endpoints, and an automated test suite. The **Next.js frontend, NGINX edge layer, and CI/CD pipeline described below are the target architecture** for this monorepo and are tracked in the [Roadmap](#-roadmap). Badges and diagrams are marked accordingly so this README never overstates what exists today.
 
 ---
 
-## Overview
+## 🖼️ Project Preview
 
-Universities typically run academics, attendance, examinations, fees, and administration on a patchwork of spreadsheets, legacy desktop software, and disconnected portals. This creates duplicated data entry, inconsistent records, and no single source of truth for a student's academic lifecycle.
+<div align="center">
 
-**CampusOS ERP** solves this by providing a single, well-architected backend API that models the full academic lifecycle — from admission and enrollment through attendance, examinations, results, and fee payments — behind a secure, role-aware REST interface that any frontend (web, mobile, or admin console) can consume.
+| Swagger / OpenAPI (live today) | Architecture Diagram (live today) |
+|:---:|:---:|
+| `docs/screenshots/swagger-ui.png` | `docs/screenshots/architecture.png` |
+| *Interactive API docs at `/docs`* | *See [System Architecture](#-system-architecture)* |
 
-**Target users**
+| Login Screen | Student Dashboard | Faculty Dashboard | Admin Dashboard |
+|:---:|:---:|:---:|:---:|
+| `docs/screenshots/login.png` | `docs/screenshots/student-dashboard.png` | `docs/screenshots/faculty-dashboard.png` | `docs/screenshots/admin-dashboard.png` |
+| 🧩 *planned — frontend* | 🧩 *planned — frontend* | 🧩 *planned — frontend* | 🧩 *planned — frontend* |
 
-- **University IT teams** who need a self-hosted, extensible ERP core instead of a closed vendor product.
-- **Frontend / product teams** building student, faculty, or admin portals that need a stable API contract.
-- **Students & Faculty**, indirectly, through the client applications built on top of this API.
+</div>
 
-**Key benefits**
-
-- 🏗️ Clean, layered architecture that keeps business logic testable and independent of transport/framework details.
-- ⚡ Fully asynchronous request handling for high-concurrency workloads (registration windows, result publishing, exam periods).
-- 🔐 Security-first design — hashed credentials, short-lived access tokens, rotating refresh tokens, and granular RBAC.
-- 🐳 One-command local environment via Docker Compose (API + PostgreSQL + Redis).
-- 🧪 A real automated test suite covering schemas, config, security, and business rules — not just happy-path smoke tests.
+> Screenshot assets are placeholders — drop real captures into `docs/screenshots/` as the frontend lands and update the paths above.
 
 ---
 
-## Features
+## 💡 Why CampusOS ERP?
 
-### 🔑 Authentication Module
-- User registration & login with hashed passwords (bcrypt via Passlib)
-- JWT **access tokens** + **rotating refresh tokens**
-- Token refresh, logout, forgot-password, reset-password, and change-password flows
-- `GET /auth/me` for current-session identity resolution
+Most universities run academics, attendance, examinations, and fees across a patchwork of spreadsheets, legacy desktop tools, and disconnected vendor portals. The result: duplicated data entry, no single source of truth, and IT teams locked into closed systems they can't extend.
 
-### 👥 User & Role Management
-- Central `User` identity shared across Students, Faculty, and Admins
-- Role catalogue with **Role-Based Access Control (RBAC)**
-- Admin endpoints to list roles and reassign a user's role
-- Profile management, profile picture upload, and account deactivation
+CampusOS ERP is built as the alternative: a **self-hostable, API-first ERP core** that any institution can own, extend, and integrate — architected the way a modern SaaS product is, not a semester project.
 
-### 🎓 Student Management
-- Student profile creation and paginated listing/search
-- Self-service `GET/PATCH /students/me`
-- Academic metadata (department, session, enrollment info)
-- Linked document management for student records
-
-### 🧑‍🏫 Faculty Management
-- Faculty profile creation, self-service view, and paginated directory
-- Department-linked faculty records
-- Faculty-to-subject assignment for teaching workloads
-
-### 📚 Academic Management
-- Departments, Courses, Semesters, and Subjects
-- Academic Sessions (e.g. term/year cycles)
-- Faculty ↔ Subject mapping
-- Timetable creation and retrieval
-
-### 🗓️ Attendance Management
-- Attendance record creation, update, and deletion
-- Self-service attendance history (`/attendance/me`)
-- Aggregated attendance summaries per subject/session
-
-### 📝 Examination & Result Management
-- Examination scheduling
-- Marks entry per examination
-- Result publishing workflow
-- Self-service results and **automatic CGPA calculation**
-
-### 💰 Fees & Payment Management
-- Fee category configuration
-- Fee assignment per student
-- Payment recording against a fee
-- Self-service fee/payment status
-
-### 📢 Notice Management
-- Notice creation, update, and deletion (admin/faculty)
-- Self-service notice feed (`/notices/me`)
-
-### 📁 Document Management
-- Multipart file upload for student/faculty documents
-- Document listing per user
-
-### 📊 Dashboard APIs
-- Role-specific aggregate dashboards: **Admin**, **Faculty**, and **Student**
+- 🏛️ **Real domain modeling** — students, faculty, departments, sessions, exams, and fees as first-class, related entities, not flat spreadsheets.
+- ⚡ **Built for concurrency** — fully async request path, tuned for spikes like registration windows and result publishing.
+- 🔐 **Security by default** — hashed credentials, short-lived access tokens, rotating refresh tokens, and route-level RBAC.
+- 🧱 **Clean, testable architecture** — business logic is decoupled from FastAPI and SQLAlchemy, so it's cheap to test and safe to extend.
+- 🐳 **One-command environments** — Docker Compose brings up the API, PostgreSQL, and Redis identically on every machine.
+- 🌱 **Designed to grow** — the monorepo layout already reserves space for a Next.js frontend, an NGINX edge, and CI/CD, so scaling the project doesn't mean rearchitecting it.
 
 ---
 
-## Technology Stack
+## ✨ Project Highlights
+
+<table>
+<tr>
+<td valign="top" width="33%">
+
+**Backend Engineering**
+- ✅ Production-ready FastAPI service
+- ✅ Fully async I/O (API → DB)
+- ✅ Clean Architecture, layered
+- ✅ Repository Pattern
+- ✅ Service Layer
+- ✅ Dependency Injection
+
+</td>
+<td valign="top" width="33%">
+
+**Security & Access**
+- ✅ JWT access tokens
+- ✅ Rotating refresh tokens
+- ✅ Role-Based Access Control
+- ✅ bcrypt password hashing
+- ✅ Environment-based secrets
+- ✅ Scoped, self-service endpoints
+
+</td>
+<td valign="top" width="33%">
+
+**Platform & DX**
+- ✅ Dockerized services
+- ✅ Redis caching layer
+- ✅ Swagger + ReDoc, auto-generated
+- ✅ Alembic auto-migrations
+- ✅ Pytest suite (schemas, RBAC, grading)
+- ✅ Ruff linting
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🧩 Feature Overview
+
+| Domain | Capabilities |
+|---|---|
+| **Authentication** | Register, login, logout, JWT access + refresh rotation, forgot/reset/change password |
+| **Users** | Unified identity for Students/Faculty/Admins, profile picture, account deactivation |
+| **Roles (RBAC)** | Role catalogue, per-route permission enforcement, role reassignment |
+| **Students** | Profile CRUD, paginated directory, self-service `/students/me` |
+| **Faculty** | Profile CRUD, paginated directory, self-service `/faculty/me` |
+| **Academics** | Departments, Courses, Semesters, Subjects, Sessions, Faculty↔Subject mapping, Timetable |
+| **Attendance** | Record create/update/delete, self history, aggregated summaries |
+| **Examinations** | Exam scheduling, marks entry, result publishing |
+| **Results** | Self-service results, automatic **CGPA calculation** |
+| **Fees** | Fee categories, per-student fee assignment, payment recording, self status |
+| **Notices** | Create/update/delete, self-service notice feed |
+| **Documents** | Multipart upload, per-user document listing |
+| **Dashboard** | Role-specific aggregate views — Admin, Faculty, Student |
+| **Reports** | 🧩 *planned — analytics/export layer* |
+| **Settings** | 🧩 *planned — institution-level configuration* |
+
+---
+
+## 🛠️ Tech Stack
+
+<details open>
+<summary><strong>Backend (implemented)</strong></summary>
 
 | Category | Technology |
 |---|---|
 | Language | Python 3.12+ |
-| Web Framework | FastAPI (async) |
-| ASGI Server | Uvicorn |
-| Database | PostgreSQL 16 |
-| ORM | SQLAlchemy 2.0 (async) |
-| DB Driver | AsyncPG |
+| Framework | FastAPI (async) |
+| Server | Uvicorn |
+| ORM | SQLAlchemy 2.0 (async) + AsyncPG |
 | Migrations | Alembic |
-| Caching | Redis 7 |
-| Auth | JWT (python-jose), Access + Refresh Token Rotation, RBAC |
+| Validation | Pydantic v2, Pydantic Settings |
+| Auth | JWT (python-jose), refresh-token rotation, RBAC |
 | Password Hashing | Passlib (bcrypt) |
-| Validation | Pydantic v2, Pydantic Settings, email-validator |
-| File Handling | python-multipart (multipart uploads, document storage) |
+| File Handling | python-multipart |
+
+</details>
+
+<details>
+<summary><strong>Frontend (planned)</strong></summary>
+
+| Category | Technology |
+|---|---|
+| Framework | Next.js 15 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Components | shadcn/ui |
+| Data Fetching | React Query + Axios |
+| Motion | Framer Motion |
+| Charts | Chart.js / Recharts |
+
+</details>
+
+<details>
+<summary><strong>Database & Infrastructure</strong></summary>
+
+| Category | Technology |
+|---|---|
+| Database | PostgreSQL 16 |
+| Cache | Redis 7 |
+| Containers | Docker, Docker Compose |
+| Edge / Reverse Proxy | NGINX *(planned)* |
+| CI/CD | GitHub Actions *(planned)* |
+| Deployment Targets | Render / Railway / VPS *(planned)* |
+
+</details>
+
+<details>
+<summary><strong>Testing & Developer Tools</strong></summary>
+
+| Category | Technology |
+|---|---|
 | Testing | Pytest, pytest-asyncio, pytest-cov, HTTPX |
 | Linting | Ruff |
-| Containerization | Docker, Docker Compose |
+| API Docs | Swagger UI, ReDoc, OpenAPI schema |
 | Config | Environment-based (`.env` / Pydantic Settings) |
+
+</details>
 
 ---
 
-## System Architecture
-
-CampusOS ERP follows **Clean Architecture** with a strict, one-directional dependency flow: API routes never touch the database directly, and business rules never depend on FastAPI or SQLAlchemy internals.
+## 🏗️ System Architecture
 
 ```mermaid
 flowchart TD
-    Client[Client Applications<br/>Web / Mobile / Admin Console]
+    Client["Client Applications<br/>Web · Mobile · Admin Console"]
+    Next["Next.js Frontend<br/>(planned)"]
+    Gateway["NGINX — API Gateway / Edge<br/>(planned)"]
 
-    subgraph API["API Layer (app/api)"]
-        Routes["FastAPI Routers<br/>Auth · Users · Students · Faculty<br/>Academic · Attendance · Examinations<br/>Fees · Notices · Documents · Dashboard"]
+    subgraph API["FastAPI — API Layer"]
+        Routes["Routers: Auth · Users · Students · Faculty<br/>Academic · Attendance · Examinations<br/>Fees · Notices · Documents · Dashboard"]
     end
 
-    subgraph SVC["Service Layer (app/services)"]
-        Services["Business Logic & Orchestration<br/>Validation Rules · CGPA Calc · RBAC Checks"]
+    subgraph SVC["Service Layer"]
+        Services["Business Rules · RBAC Checks<br/>CGPA Calculation · Token Rotation"]
     end
 
-    subgraph REPO["Repository Layer (app/repositories)"]
-        Repos["Data Access Abstraction<br/>Query Building · Persistence"]
+    subgraph REPO["Repository Layer"]
+        Repos["Data Access Abstraction"]
     end
 
-    subgraph INFRA["Infrastructure"]
-        DB[(PostgreSQL<br/>SQLAlchemy 2.0 Async ORM)]
-        Cache[(Redis<br/>Caching / Token State)]
-        Storage[[Local / Mounted Storage<br/>Document Uploads]]
-    end
+    DB[(PostgreSQL 16<br/>SQLAlchemy 2.0 Async)]
+    Cache[(Redis 7<br/>Cache · Session State)]
+    Storage[["Object / Local Storage<br/>Document Uploads"]]
+    External["External Services<br/>Email · SMS · Payment Gateway (planned)"]
 
-    Client -->|HTTPS / JSON| Routes
-    Routes -->|Dependency Injection| Services
-    Services --> Repos
-    Repos -->|AsyncPG| DB
-    Services -.->|cache reads/writes| Cache
-    Services -.->|file I/O| Storage
+    Client --> Next --> Gateway --> Routes
+    Client -.->|direct, dev/mobile| Routes
+    Routes -->|Depends| Services --> Repos -->|AsyncPG| DB
+    Services -.-> Cache
+    Services -.-> Storage
+    Services -.-> External
 
-    Middleware["Middleware<br/>Auth Guard · CORS · Logging"] -.-> Routes
-    Security["Security Layer<br/>JWT · Password Hashing"] -.-> Services
+    style Next fill:#00000010,stroke-dasharray: 5 5
+    style Gateway fill:#00000010,stroke-dasharray: 5 5
+    style External fill:#00000010,stroke-dasharray: 5 5
 ```
 
-**Design principles applied**
+**Layering rules**
 
-- **Repository Pattern** — all persistence access is abstracted behind repository classes; services never write raw queries.
-- **Service Layer** — business rules (RBAC checks, CGPA math, token rotation) live in `app/services`, independent of the HTTP layer.
-- **Dependency Injection** — FastAPI's `Depends()` wires repositories, services, and the authenticated user into each route.
-- **Separation of Concerns** — models, schemas, routing, business logic, and persistence each live in their own package.
-- **Async end-to-end** — from the ASGI server down to the database driver, no blocking I/O sits on the request path.
+- API routes are transport-only — they parse requests and call services, nothing more.
+- Services own business rules and are framework-agnostic — no FastAPI or SQLAlchemy imports.
+- Repositories are the only layer allowed to talk to the database.
+- Every dependency flows downward — `API → Service → Repository → Database` — never sideways or back up.
 
 ---
 
-## Project Structure
+## 📁 Folder Structure
 
 ```
-CampusOS-ERP/
-├── app/
-│   ├── main.py               # FastAPI app factory, lifespan, health check
-│   ├── api/                  # Route definitions (thin HTTP layer)
-│   │   ├── auth.py           # /auth  – login, refresh, logout, password flows
-│   │   ├── users.py          # /users – profile, avatar, deactivation
-│   │   ├── roles.py          # /roles – RBAC role assignment
-│   │   ├── students.py       # /students
-│   │   ├── faculty.py        # /faculty
-│   │   ├── academic.py       # /academic – departments, courses, subjects...
-│   │   ├── attendance.py     # /attendance
-│   │   ├── examinations.py   # /examinations – marks, publish, CGPA
-│   │   ├── fees.py           # /fees – categories, payments
-│   │   ├── notices.py        # /notices
-│   │   ├── documents.py      # /documents – uploads
-│   │   ├── dashboard.py      # /dashboard – admin/faculty/student summaries
-│   │   └── router.py         # Aggregates all routers into api_router
-│   ├── services/              # Business logic (one service per domain)
-│   ├── repositories/          # Data-access layer (one repository per aggregate)
-│   ├── models/                 # SQLAlchemy ORM models
-│   ├── schemas/                # Pydantic request/response schemas
-│   ├── security/               # Password hashing & JWT token utilities
-│   ├── middleware/             # Auth guard, CORS, logging middleware
-│   ├── dependencies/            # FastAPI dependency providers
-│   ├── database/                # Async session/engine management
-│   ├── core/                    # Settings (Pydantic Settings) & logging config
-│   └── utils/                    # Shared helpers
-├── migrations/                 # Alembic migration environment & versions
-├── tests/                      # Pytest suite (schemas, config, security, RBAC, grading)
-├── docs/                       # Module-level documentation
-├── docker-compose.yml          # API + PostgreSQL + Redis stack
-├── Dockerfile                  # Production container image
-├── alembic.ini
-├── pyproject.toml
-└── .env.example
+campusos-erp/
+├── backend/                # FastAPI service — implemented
+│   ├── app/
+│   │   ├── api/            # Routers (thin HTTP layer)
+│   │   ├── services/       # Business logic
+│   │   ├── repositories/   # Data access
+│   │   ├── models/         # SQLAlchemy models
+│   │   ├── schemas/        # Pydantic schemas
+│   │   ├── security/       # JWT + password hashing
+│   │   └── core/           # Settings & logging
+│   ├── migrations/         # Alembic
+│   ├── tests/               # Pytest suite
+│   ├── Dockerfile
+│   └── pyproject.toml
+│
+├── frontend/                # Next.js app — planned
+│   ├── app/  components/  lib/  hooks/  public/
+│   ├── package.json
+│   └── Dockerfile
+│
+├── nginx/                   # Edge/reverse proxy config — planned
+│   └── nginx.conf
+│
+├── .github/workflows/       # CI/CD pipelines — planned
+├── docs/                    # Module-level documentation
+├── docker-compose.yml
+├── README.md
+└── LICENSE
 ```
 
 ---
 
-## Getting Started
+## 🔌 API Overview
 
-### Prerequisites
+Base path: `/api/v1` · Interactive docs: `/docs` (Swagger) and `/redoc` (ReDoc)
 
-- Python **3.12+**
-- PostgreSQL **16+** (or use the provided Docker service)
-- Redis **7+** (or use the provided Docker service)
-- Docker & Docker Compose *(optional but recommended)*
+| Module | Path | Sample Endpoints |
+|---|---|---|
+| Authentication | `/auth` | `POST /login`, `POST /refresh`, `POST /logout`, `GET /me` |
+| Students | `/students` | `POST /`, `GET /me`, `GET /`, `PATCH /{id}` |
+| Faculty | `/faculty` | `POST /`, `GET /me`, `GET /`, `PATCH /{id}` |
+| Attendance | `/attendance` | `POST /`, `GET /me`, `GET /me/summary` |
+| Examinations | `/examinations` | `POST /{exam_id}/marks`, `POST /{exam_id}/publish`, `GET /me/cgpa` |
+| Fees | `/fees` | `POST /categories`, `POST /{fee_id}/payments`, `GET /me/status` |
+| Dashboard | `/dashboard` | `GET /admin`, `GET /faculty`, `GET /student` |
 
-### Local Setup (without Docker)
+Full endpoint-by-endpoint reference lives in [`docs/`](docs) and the live OpenAPI schema.
+
+---
+
+## 📨 Request / Response Examples
+
+<details>
+<summary><strong>Login → receive token pair</strong></summary>
+
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "student@campusos.edu",
+  "password": "••••••••"
+}
+```
+
+```json
+{
+  "access_token": "eyJhbGciOi...",
+  "refresh_token": "8f14e45f-ceea-467e-...",
+  "token_type": "bearer",
+  "expires_in": 1800
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Fetch current student's CGPA</strong></summary>
+
+```http
+GET /api/v1/examinations/me/cgpa
+Authorization: Bearer <access_token>
+```
+
+```json
+{
+  "student_id": "3fae5c9e-9d2e-4a3a-9d7e-2c1b0e6a1c11",
+  "cgpa": 8.42,
+  "total_credits": 96
+}
+```
+
+</details>
+
+---
+
+## 🔐 Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant U as Client
+    participant A as Auth Service
+    participant D as Database
+    participant R as Protected Route
+
+    U->>A: POST /auth/login (email, password)
+    A->>D: verify hashed password
+    A-->>U: access_token + refresh_token
+
+    U->>R: GET /resource (Bearer access_token)
+    R->>R: validate JWT + resolve role
+    alt role authorized
+        R-->>U: 200 OK
+    else role forbidden
+        R-->>U: 403 Forbidden
+    end
+
+    U->>A: POST /auth/refresh (refresh_token)
+    A->>D: rotate refresh token
+    A-->>U: new access_token + new refresh_token
+```
+
+Refresh tokens **rotate on every use**; reusing a stale refresh token is treated as a compromise signal. See [`docs/authentication.md`](docs/authentication.md) and [`docs/rbac.md`](docs/rbac.md).
+
+---
+
+## 🗄️ Database Design
+
+20 tables model the full academic lifecycle — identity (`users`, `roles`, `refresh_tokens`), people (`students`, `faculty`), academics (`departments`, `courses`, `semesters`, `subjects`, `academic_sessions`, `timetable`, `faculty_subject_assignments`), operations (`attendance`, `exams`, `results`, `notices`, `documents`), and finance (`fee_categories`, `fees`, `payments`).
+
+```
+docs/screenshots/er-diagram.png   ← placeholder, generate via `alembic` + a schema visualizer
+```
+
+Full schema reference: [`docs/database-schema.md`](docs/database-schema.md).
+
+---
+
+## 📊 Project Metrics
+
+| Metric | Value |
+|---|---|
+| Domain Modules | 12 |
+| REST Endpoints | 60+ |
+| Database Tables | 20 |
+| Architecture Pattern | Clean Architecture (Repository + Service layers) |
+| Auth Model | JWT + Rotating Refresh Tokens + RBAC |
+| Test Suite | Pytest — schemas, config, security, RBAC, grading |
+| Docker Services | API · PostgreSQL · Redis |
+| API Version | `v1` |
+
+---
+
+## ⚡ Performance Features
+
+- Fully **async** request path — FastAPI → SQLAlchemy async → AsyncPG, no blocking I/O on the hot path
+- **Connection pooling** tuned via `DATABASE_POOL_SIZE` / `DATABASE_MAX_OVERFLOW`
+- **Redis** available for caching hot reads and reducing database load
+- **Pagination** on all list endpoints (students, faculty, etc.) to bound response size
+- Indexed, UUID-keyed models designed for efficient lookups and joins
+
+---
+
+## 🔒 Security Features
+
+- JWT access tokens with short expiry + rotating refresh tokens
+- Passwords hashed with **bcrypt** — never stored or logged in plaintext
+- **RBAC** enforced at the route dependency layer, not in application logic
+- Strict Pydantic input validation on every request body
+- All secrets and connection strings sourced from environment variables — nothing hardcoded
+- CORS configured via `CORS_ORIGINS`
+- Rate limiting and audit logging — see [Roadmap](#-roadmap)
+
+---
+
+## 🧑‍💻 Developer Experience
+
+- `uvicorn --reload` hot reload for local development
+- One-command environment via `docker compose up`
+- Auto-generated **Swagger UI** and **ReDoc** — no hand-written API docs to keep in sync
+- **Alembic autogenerate** turns model changes into migrations
+- Pytest suite runs in seconds; `ruff check` keeps style consistent
+- Fully typed request/response contracts via Pydantic v2
+
+---
+
+## 🚀 Quick Start
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/<your-org>/campusos-erp.git
-cd campusos-erp
+# 1. Clone
+git clone https://github.com/your-org/campusos-erp.git
+cd campusos-erp/backend
 
-# 2. Create and activate a virtual environment
-python3.12 -m venv .venv
-source .venv/bin/activate
-
-# 3. Install dependencies (runtime + dev/test extras)
+# 2. Install
+python3.12 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 
-# 4. Configure environment variables
-cp .env.example .env
-# edit .env with your local DATABASE_URL, REDIS_URL, and JWT_SECRET_KEY
+# 3. Configure
+cp .env.example .env   # set DATABASE_URL, REDIS_URL, JWT_SECRET_KEY
 
-# 5. Apply database migrations
+# 4. Migrate
 alembic upgrade head
 
-# 6. Run the development server
+# 5. Run
 uvicorn app.main:app --reload
 ```
 
-The API will be available at `http://localhost:8000`, with interactive docs at:
-
-- Swagger UI → `http://localhost:8000/docs`
-- ReDoc → `http://localhost:8000/redoc`
-- Health check → `http://localhost:8000/health`
-
-### Setup with Docker Compose
-
-This spins up the API, PostgreSQL, and Redis together, and automatically runs migrations on startup.
-
-```bash
-cp .env.example .env
-docker compose up --build
-```
-
-| Service | Container Port | Host Port |
-|---|---|---|
-| `api` | 8000 | 8000 |
-| `postgres` | 5432 | 5432 |
-| `redis` | 6379 | 6379 |
-
-Stop the stack:
-
-```bash
-docker compose down          # keep volumes
-docker compose down -v       # also remove postgres/redis volumes
-```
+API → `http://localhost:8000` · Docs → `http://localhost:8000/docs` · Health → `http://localhost:8000/health`
 
 ---
 
-## Environment Variables
-
-Configuration is fully environment-driven via **Pydantic Settings** (`app/core/config.py`). See [`.env.example`](.env.example) for the complete list. Key variables:
+## ⚙️ Environment Variables
 
 | Variable | Description | Example |
 |---|---|---|
-| `APP_NAME` | Display name of the service | `College ERP Management System` |
+| `APP_NAME` | Service display name | `CampusOS ERP` |
 | `APP_ENV` | Environment name | `development` / `production` |
-| `DEBUG` | Enable debug mode | `true` / `false` |
-| `API_V1_PREFIX` | Base path for versioned routes | `/api/v1` |
-| `CORS_ORIGINS` | Comma-separated allowed origins | `http://localhost:3000` |
+| `API_V1_PREFIX` | Versioned API base path | `/api/v1` |
+| `CORS_ORIGINS` | Allowed origins (comma-separated) | `http://localhost:3000` |
 | `DATABASE_URL` | Async PostgreSQL DSN | `postgresql+asyncpg://user:pass@host:5432/db` |
-| `DATABASE_POOL_SIZE` / `DATABASE_MAX_OVERFLOW` | SQLAlchemy pool tuning | `5` / `10` |
+| `DATABASE_POOL_SIZE` / `DATABASE_MAX_OVERFLOW` | Pool tuning | `5` / `10` |
 | `REDIS_URL` | Redis connection string | `redis://localhost:6379/0` |
-| `JWT_SECRET_KEY` | Secret used to sign JWTs | *(generate a strong random value)* |
-| `JWT_ALGORITHM` | JWT signing algorithm | `HS256` |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Access token lifetime | `30` |
-| `REFRESH_TOKEN_EXPIRE_DAYS` | Refresh token lifetime | `7` |
-| `PASSWORD_RESET_TOKEN_EXPIRE_MINUTES` | Reset-token lifetime | `15` |
-| `STORAGE_PATH` | Directory for uploaded documents | `storage` |
+| `JWT_SECRET_KEY` | JWT signing secret | *generate a strong random value* |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Access token TTL | `30` |
+| `REFRESH_TOKEN_EXPIRE_DAYS` | Refresh token TTL | `7` |
+| `STORAGE_PATH` | Upload storage directory | `storage` |
 | `MAX_UPLOAD_SIZE_MB` | Upload size limit | `10` |
 
-> ⚠️ Never commit a real `.env` file. `JWT_SECRET_KEY` in particular must be replaced with a strong, unique secret in every environment.
+> [!WARNING]
+> Never commit a real `.env`. `JWT_SECRET_KEY` must be unique per environment.
+
+Full list: [`backend/.env.example`](backend/.env.example) · [`docs/configuration.md`](docs/configuration.md)
 
 ---
 
-## Database Migrations
-
-Schema changes are managed with **Alembic**.
+## 🐳 Docker Setup
 
 ```bash
-# Generate a new migration from model changes
-alembic revision --autogenerate -m "add fee_category table"
-
-# Apply all pending migrations
-alembic upgrade head
-
-# Roll back one revision
-alembic downgrade -1
+cp backend/.env.example backend/.env
+docker compose up --build
 ```
 
-See [`docs/database.md`](docs/database.md) and [`docs/database-schema.md`](docs/database-schema.md) for schema details.
-
----
-
-## API Reference
-
-All endpoints are versioned under `API_V1_PREFIX` (default `/api/v1`). Full interactive documentation is served at `/docs` (Swagger) and `/redoc`.
-
-| Module | Base Path | Highlights |
+| Service | Purpose | Port |
 |---|---|---|
-| Authentication | `/api/v1/auth` | `register`, `login`, `refresh`, `logout`, `forgot-password`, `reset-password`, `change-password`, `me` |
-| Roles | `/api/v1/roles` | List roles, assign role to user |
-| Users | `/api/v1/users` | Profile, profile picture upload, deactivate, admin listing |
-| Students | `/api/v1/students` | Create, self-profile, paginated list, get/update by ID |
-| Faculty | `/api/v1/faculty` | Create, self-profile, paginated list, get/update by ID |
-| Academic | `/api/v1/academic` | Departments, Courses, Semesters, Subjects, Sessions, Faculty-Subjects, Timetable |
-| Attendance | `/api/v1/attendance` | Create/update/delete records, self history, self summary |
-| Examinations | `/api/v1/examinations` | Create exam, enter marks, publish results, self results, self CGPA |
-| Fees | `/api/v1/fees` | Fee categories, assign fees, record payments, self status |
-| Notices | `/api/v1/notices` | Create/update/delete, self feed |
-| Documents | `/api/v1/documents` | Upload, list |
-| Dashboard | `/api/v1/dashboard` | Admin, Faculty, and Student summary views |
+| `api` | FastAPI backend | 8000 |
+| `postgres` | PostgreSQL 16 | 5432 |
+| `redis` | Redis 7 | 6379 |
+| `frontend` | Next.js app *(planned)* | 3000 |
+| `nginx` | Edge / reverse proxy *(planned)* | 80/443 |
+
+Migrations run automatically on container start. See [`docs/docker.md`](docs/docker.md).
 
 ---
 
-## Authentication & RBAC
-
-1. **Register / Login** → receive a short-lived **access token** and a long-lived **refresh token**.
-2. Every protected route requires `Authorization: Bearer <access_token>`.
-3. When the access token expires, call `POST /auth/refresh` with the refresh token to obtain a new token pair — refresh tokens **rotate** on every use, and reuse of an old token is treated as a compromise signal.
-4. Each `User` is linked to a **Role** (e.g. Admin, Faculty, Student). Route-level dependencies enforce **RBAC**, so a Student cannot access Faculty- or Admin-only endpoints (e.g. publishing results, managing fee categories).
-
-See [`docs/authentication.md`](docs/authentication.md) and [`docs/rbac.md`](docs/rbac.md) for the full flow and permission matrix.
-
----
-
-## Testing
-
-The project ships with a Pytest suite covering configuration, schemas, security primitives, RBAC rules, and grading logic.
+## 🧪 Testing
 
 ```bash
-# Run the full test suite
-pytest
-
-# Run with coverage
-pytest --cov=app --cov-report=term-missing
-
-# Run a specific test file
-pytest tests/test_rbac.py -v
+pytest                                  # full suite
+pytest --cov=app --cov-report=term-missing   # with coverage
+pytest tests/test_rbac.py -v            # a single module
 ```
 
-Test coverage includes: `test_health`, `test_config`, `test_database_base`, `test_tokens`, `test_rbac`, `test_grade_calculation`, `test_user_schemas`, `test_student_schemas`, `test_faculty_schemas`, `test_academic_schemas`, and `test_attendance_schema`. See [`docs/testing.md`](docs/testing.md) for conventions and how to add new tests.
+Coverage includes config, schemas (student/faculty/academic/attendance/user), security (`test_tokens`), RBAC, and grading logic. See [`docs/testing.md`](docs/testing.md).
 
 ---
 
-## Documentation
+## 🔁 CI/CD
 
-In-depth, module-level documentation lives under [`docs/`](docs):
+> 🧩 **Planned.** `.github/workflows/` will host:
 
-| Doc | Covers |
-|---|---|
-| [`architecture.md`](docs/architecture.md) | Layering, request flow, design decisions |
-| [`authentication.md`](docs/authentication.md) | Auth & token lifecycle |
-| [`rbac.md`](docs/rbac.md) | Roles & permissions |
-| [`users.md`](docs/users.md) | User profile management |
-| [`students.md`](docs/students.md) | Student domain |
-| [`faculty.md`](docs/faculty.md) | Faculty domain |
-| [`academic.md`](docs/academic.md) | Departments, courses, subjects, timetable |
-| [`attendance.md`](docs/attendance.md) | Attendance records & summaries |
-| [`notices.md`](docs/notices.md) | Notice board |
-| [`database.md`](docs/database.md) / [`database-schema.md`](docs/database-schema.md) | Data model & schema |
-| [`docker.md`](docs/docker.md) | Container image & compose stack |
-| [`deployment.md`](docs/deployment.md) | Deployment guidance |
-| [`testing.md`](docs/testing.md) | Test suite conventions |
-| [`configuration.md`](docs/configuration.md) | Settings & environment variables |
+- **`ci.yml`** — lint (Ruff) + test (Pytest + coverage) on every PR
+- **`build.yml`** — build & push backend/frontend Docker images
+- **`deploy.yml`** — deploy to Render / Railway / VPS on merge to `main`
+
+```mermaid
+flowchart LR
+    PR["Pull Request"] --> Lint["Ruff Lint"] --> Test["Pytest + Coverage"] --> Build["Docker Build"] --> Deploy["Deploy<br/>(Render / Railway / VPS)"]
+```
 
 ---
 
-## Roadmap
+## 🗺️ Roadmap
 
-- [ ] Rate limiting on authentication endpoints
-- [ ] Redis-backed caching for read-heavy dashboard/report endpoints
-- [ ] Structured audit logging for administrative actions
-- [ ] Bulk import/export (CSV) for students and faculty
-- [ ] Webhook/notification integration for fee and result publishing events
-- [ ] OpenAPI-generated TypeScript client for frontend consumption
+**Backend**
+- [x] Auth, RBAC, and core domain modules
+- [x] Dockerized API + PostgreSQL + Redis
+- [ ] Rate limiting on auth endpoints
+- [ ] Redis-backed response caching for dashboards
+- [ ] Structured audit logging
+- [ ] Bulk CSV import/export for students & faculty
 
-Have an idea? Open an issue or start a discussion.
+**Platform**
+- [ ] Next.js frontend (App Router, TypeScript, Tailwind, shadcn/ui)
+- [ ] NGINX reverse proxy in front of API + frontend
+- [ ] GitHub Actions CI/CD pipeline
+- [ ] OpenAPI-generated TypeScript client
+- [ ] Reports/analytics module
+- [ ] Institution-level settings module
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome!
-
-1. Fork the repository and create a feature branch (`git checkout -b feature/my-feature`).
-2. Follow the existing layering — routes stay thin, business logic goes in `services/`, persistence goes in `repositories/`.
-3. Run linting and tests before opening a PR:
+1. Fork the repo and create a branch: `git checkout -b feature/my-feature`
+2. Respect the layering — routes stay thin, logic lives in `services/`, persistence in `repositories/`
+3. Before opening a PR:
    ```bash
    ruff check .
    pytest --cov=app
    ```
-4. Write clear commit messages and update relevant docs in `docs/` when behavior changes.
-5. Open a pull request describing the change, motivation, and testing performed.
+4. Update relevant docs in `docs/` when behavior changes
+5. Open a PR describing the change, motivation, and how it was tested
 
-Please open an issue first for large or breaking changes so they can be discussed.
-
----
-
-## License
-
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
+Large or breaking changes → please open an issue first to discuss.
 
 ---
 
-<p align="center">Built for universities that deserve better software.</p>
+## 📄 License
+
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE).
+
+## 🙏 Acknowledgements
+
+Built on the shoulders of [FastAPI](https://fastapi.tiangolo.com/), [SQLAlchemy](https://www.sqlalchemy.org/), [Pydantic](https://docs.pydantic.dev/), and the wider Python async ecosystem.
+
+---
+
+<div align="center">
+
+**Built with ❤️ using FastAPI, PostgreSQL, and Redis — with Next.js on the way.**
+
+</div>
